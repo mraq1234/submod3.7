@@ -1,57 +1,68 @@
-class Stopwatch extends React.Component {
-    constructor(props) {
-        super(props);
+const pad0 = value => {
+    let result = value.toString();
+    if (result.length < 2) {
+        result = '0' + result;
     }
-
-    render() {
-        return (
-            <div className="stopwatch">{this.props.actualTime}</div>
-        )
-    }
+    return result;
 }
 
-class Middletimes extends React.Component {
-    constructor(props) {
-        super(props);   
-    }
-    
-    render () {
-        this.listTimes = this.props.listTime.map((time) => {
-            return (
-                <li>{time}</li>
-            );
-        })
-        return (
-            <div className='middletimes'><ul>{this.listTimes}</ul></div>
-        );
-    }
+const format = ({minutes, seconds, miliseconds}) =>
+        `${pad0(minutes)}:${pad0(seconds)}:${pad0(Math.floor(miliseconds))}`;
+
+const StoperDisplay = ({actualTime}) => <div className="stopwatch">{format(actualTime)}</div>;
+
+const StoperMiddletimes = ({listTime}) => {
+    const timesList = listTime.map(time => <li>{format(time)}</li>);
+
+    return (    
+        <ul className='middletimes'>{timesList}</ul>
+    );
 }
 
-class App extends React.Component {
-        constructor(props) {
+const StoperButtons = props => {
+    const {
+        handleStart,
+        handleMiddleTime,
+        handleStop,
+        handleReset,
+        handleClearList
+    } = props;
+    return (
+        <nav className="controls">
+            <button className="button" onClick={handleStart}>Start</button>&nbsp;
+            <button className="button" onClick={handleMiddleTime}>Middle</button>&nbsp;
+            <button className="button" onClick={handleStop}>Stop</button>&nbsp;
+            <button className="button" onClick={handleReset}>Reset</button>&nbsp;
+            <button className="button" onClick={handleClearList}>Clear</button>
+        </nav>
+    );
+}
+
+class Stoper extends React.Component {
+    constructor(props) {
         super(props);
         this.state = {
             running: false,
-            actualTime: "",
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            },
+            listTime: []
         };
-        this.listTime = [];
-        this.reset();
-        this.print(this.times);
+        
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
         this.middleTime = this.middleTime.bind(this);
         this.reset = this.reset.bind(this);
         this.clearList = this.clearList.bind(this);
-        document.getElementById('start').addEventListener('click', this.start);
-        document.getElementById('stop').addEventListener('click', this.stop);
-        document.getElementById('middle').addEventListener('click', this.middleTime);
-        document.getElementById('reset').addEventListener('click', this.reset);
-        document.getElementById('clearList').addEventListener('click', this.clearList);
     }
 
     start()  {
         if (!this.state.running) {
-            this.state.running = true;
+            this.setState({
+                running: true
+            });
             this.watch = setInterval(() => this.step(), 10);
         }
     }
@@ -59,73 +70,76 @@ class App extends React.Component {
     step() {
         if (!this.state.running) return;
         this.calculate();
-        this.print();
     }
 
     stop()  {
-        this.state.running = false;
+        this.setState({
+            running: false
+        });
         clearInterval(this.watch);
     }
     
     reset() {
-        this.times = {
-            minutes: 0,
-            seconds: 0,
-            miliseconds: 0
-        };
-        this.print();
-    }
-
-    print() {
-        this.state.actualTime = this.format(this.times);
-        this.forceUpdate();
+        this.setState({
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            }
+        });
     }
 
     middleTime() {
         if (!this.state.running) return;
-        this.listTime.push(this.format(this.times));
-        this.forceUpdate();
+        this.setState({
+            listTime: [...this.state.listTime, this.state.times]
+        });
     }
 
     clearList() {
-        this.listTime = [];
-        this.forceUpdate();
-    }
-
-    format(times) {
-        return `${this.pad0(times.minutes)}:${this.pad0(times.seconds)}:${this.pad0(Math.floor(times.miliseconds))}`;
+        this.setState({
+            listTime: []
+        });
     }
 
     calculate() {
-        this.times.miliseconds += 1;
-        if (this.times.miliseconds >= 100) {
-            this.times.seconds += 1;
-            this.times.miliseconds = 0;
+        this.state.times.miliseconds += 1;
+        if (this.state.times.miliseconds >= 100) {
+            this.state.times.seconds += 1;
+            this.state.times.miliseconds = 0;
         }
-        if (this.times.seconds >= 60) {
-            this.times.minutes += 1;
-            this.times.seconds = 0;
+        if (this.state.times.seconds >= 60) {
+            this.state.times.minutes += 1;
+            this.state.times.seconds = 0;
         }
-    }
-
-    pad0(value) {
-        let result = value.toString();
-        if (result.length < 2) {
-            result = '0' + result;
-        }
-        return result;
     }
 
     render() {
         return (
             <div>
-                <Stopwatch className="stopwatch" actualTime={this.state.actualTime}/>
-                <Middletimes className="middletimes" listTime={this.listTime}/>
+                <StoperDisplay actualTime={this.state.times}/>                
+                <StoperButtons 
+                    handleStart={this.start}
+                    handleStop={this.stop}
+                    handleReset={this.reset}
+                    handleMiddleTime={this.middleTime}
+                    handleClearList={this.clearList}
+                />
+                <StoperMiddletimes listTime={this.state.listTime}/>
             </div>
         );
     }
 }
 
+const App = () => {
+    return (
+        <div className="container">
+            <Stoper />
+            <Stoper />
+            <Stoper />
+        </div>
+    )
+}
 
 ReactDOM.render(
   <App />,

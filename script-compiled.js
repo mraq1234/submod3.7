@@ -1,6 +1,8 @@
-"use strict";
+'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -8,152 +10,172 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Stopwatch = function (_React$Component) {
-    _inherits(Stopwatch, _React$Component);
-
-    function Stopwatch(props) {
-        _classCallCheck(this, Stopwatch);
-
-        return _possibleConstructorReturn(this, (Stopwatch.__proto__ || Object.getPrototypeOf(Stopwatch)).call(this, props));
+var pad0 = function pad0(value) {
+    var result = value.toString();
+    if (result.length < 2) {
+        result = '0' + result;
     }
+    return result;
+};
 
-    _createClass(Stopwatch, [{
-        key: "render",
-        value: function render() {
-            return React.createElement(
-                "div",
-                { className: "stopwatch" },
-                this.props.actualTime
-            );
-        }
-    }]);
+var format = function format(_ref) {
+    var minutes = _ref.minutes,
+        seconds = _ref.seconds,
+        miliseconds = _ref.miliseconds;
+    return pad0(minutes) + ':' + pad0(seconds) + ':' + pad0(Math.floor(miliseconds));
+};
 
-    return Stopwatch;
-}(React.Component);
+var StoperDisplay = function StoperDisplay(_ref2) {
+    var actualTime = _ref2.actualTime;
+    return React.createElement(
+        'div',
+        { className: 'stopwatch' },
+        format(actualTime)
+    );
+};
 
-var Middletimes = function (_React$Component2) {
-    _inherits(Middletimes, _React$Component2);
+var StoperMiddletimes = function StoperMiddletimes(_ref3) {
+    var listTime = _ref3.listTime;
 
-    function Middletimes(props) {
-        _classCallCheck(this, Middletimes);
+    var timesList = listTime.map(function (time) {
+        return React.createElement(
+            'li',
+            null,
+            format(time)
+        );
+    });
 
-        return _possibleConstructorReturn(this, (Middletimes.__proto__ || Object.getPrototypeOf(Middletimes)).call(this, props));
-    }
+    return React.createElement(
+        'ul',
+        { className: 'middletimes' },
+        timesList
+    );
+};
 
-    _createClass(Middletimes, [{
-        key: "render",
-        value: function render() {
-            this.listTimes = this.props.listTime.map(function (time) {
-                return React.createElement(
-                    "li",
-                    null,
-                    time
-                );
-            });
-            return React.createElement(
-                "div",
-                { className: "middletimes" },
-                React.createElement(
-                    "ul",
-                    null,
-                    this.listTimes
-                )
-            );
-        }
-    }]);
+var StoperButtons = function StoperButtons(props) {
+    var handleStart = props.handleStart,
+        handleMiddleTime = props.handleMiddleTime,
+        handleStop = props.handleStop,
+        handleReset = props.handleReset,
+        handleClearList = props.handleClearList;
 
-    return Middletimes;
-}(React.Component);
+    return React.createElement(
+        'nav',
+        { className: 'controls' },
+        React.createElement(
+            'button',
+            { className: 'button', onClick: handleStart },
+            'Start'
+        ),
+        '\xA0',
+        React.createElement(
+            'button',
+            { className: 'button', onClick: handleMiddleTime },
+            'Middle'
+        ),
+        '\xA0',
+        React.createElement(
+            'button',
+            { className: 'button', onClick: handleStop },
+            'Stop'
+        ),
+        '\xA0',
+        React.createElement(
+            'button',
+            { className: 'button', onClick: handleReset },
+            'Reset'
+        ),
+        '\xA0',
+        React.createElement(
+            'button',
+            { className: 'button', onClick: handleClearList },
+            'Clear'
+        )
+    );
+};
 
-var App = function (_React$Component3) {
-    _inherits(App, _React$Component3);
+var Stoper = function (_React$Component) {
+    _inherits(Stoper, _React$Component);
 
-    function App(props) {
-        _classCallCheck(this, App);
+    function Stoper(props) {
+        _classCallCheck(this, Stoper);
 
-        var _this3 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (Stoper.__proto__ || Object.getPrototypeOf(Stoper)).call(this, props));
 
-        _this3.state = {
+        _this.state = {
             running: false,
-            actualTime: ""
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            },
+            listTime: []
         };
-        _this3.listTime = [];
-        _this3.reset();
-        _this3.print(_this3.times);
-        _this3.start = _this3.start.bind(_this3);
-        _this3.stop = _this3.stop.bind(_this3);
-        _this3.middleTime = _this3.middleTime.bind(_this3);
-        _this3.reset = _this3.reset.bind(_this3);
-        _this3.clearList = _this3.clearList.bind(_this3);
-        document.getElementById('start').addEventListener('click', _this3.start);
-        document.getElementById('stop').addEventListener('click', _this3.stop);
-        document.getElementById('middle').addEventListener('click', _this3.middleTime);
-        document.getElementById('reset').addEventListener('click', _this3.reset);
-        document.getElementById('clearList').addEventListener('click', _this3.clearList);
-        return _this3;
+
+        _this.start = _this.start.bind(_this);
+        _this.stop = _this.stop.bind(_this);
+        _this.middleTime = _this.middleTime.bind(_this);
+        _this.reset = _this.reset.bind(_this);
+        _this.clearList = _this.clearList.bind(_this);
+        return _this;
     }
 
-    _createClass(App, [{
-        key: "start",
+    _createClass(Stoper, [{
+        key: 'start',
         value: function start() {
-            var _this4 = this;
+            var _this2 = this;
 
             if (!this.state.running) {
-                this.state.running = true;
+                this.setState({
+                    running: true
+                });
                 this.watch = setInterval(function () {
-                    return _this4.step();
+                    return _this2.step();
                 }, 10);
             }
         }
     }, {
-        key: "step",
+        key: 'step',
         value: function step() {
             if (!this.state.running) return;
             this.calculate();
-            this.print();
         }
     }, {
-        key: "stop",
+        key: 'stop',
         value: function stop() {
-            this.state.running = false;
+            this.setState({
+                running: false
+            });
             clearInterval(this.watch);
         }
     }, {
-        key: "reset",
+        key: 'reset',
         value: function reset() {
-            this.times = {
-                minutes: 0,
-                seconds: 0,
-                miliseconds: 0
-            };
-            this.print();
+            this.setState({
+                times: {
+                    minutes: 0,
+                    seconds: 0,
+                    miliseconds: 0
+                }
+            });
         }
     }, {
-        key: "print",
-        value: function print() {
-            this.state.actualTime = this.format(this.times);
-            this.forceUpdate();
-        }
-    }, {
-        key: "middleTime",
+        key: 'middleTime',
         value: function middleTime() {
             if (!this.state.running) return;
-            this.listTime.push(this.format(this.times));
-            this.forceUpdate();
+            this.setState({
+                listTime: [].concat(_toConsumableArray(this.state.listTime), [this.state.times])
+            });
         }
     }, {
-        key: "clearList",
+        key: 'clearList',
         value: function clearList() {
-            this.listTime = [];
-            this.forceUpdate();
+            this.setState({
+                listTime: []
+            });
         }
     }, {
-        key: "format",
-        value: function format(times) {
-            return this.pad0(times.minutes) + ":" + this.pad0(times.seconds) + ":" + this.pad0(Math.floor(times.miliseconds));
-        }
-    }, {
-        key: "calculate",
+        key: 'calculate',
         value: function calculate() {
             this.times.miliseconds += 1;
             if (this.times.miliseconds >= 100) {
@@ -166,28 +188,36 @@ var App = function (_React$Component3) {
             }
         }
     }, {
-        key: "pad0",
-        value: function pad0(value) {
-            var result = value.toString();
-            if (result.length < 2) {
-                result = '0' + result;
-            }
-            return result;
-        }
-    }, {
-        key: "render",
+        key: 'render',
         value: function render() {
             return React.createElement(
-                "div",
+                'div',
                 null,
-                React.createElement(Stopwatch, { className: "stopwatch", actualTime: this.state.actualTime }),
-                React.createElement(Middletimes, { className: "middletimes", listTime: this.listTime })
+                React.createElement(StoperDisplay, { actualTime: this.state.times }),
+                React.createElement(StoperButtons, {
+                    handleStart: this.start,
+                    handleStop: this.stop,
+                    handleReset: this.reset,
+                    handleMiddleTime: this.middleTime,
+                    handleClearList: this.clearList
+                }),
+                React.createElement(StoperMiddletimes, { listTime: this.state.listTime })
             );
         }
     }]);
 
-    return App;
+    return Stoper;
 }(React.Component);
+
+var App = function App() {
+    return React.createElement(
+        'div',
+        { className: 'container' },
+        React.createElement(Stoper, null),
+        React.createElement(Stoper, null),
+        React.createElement(Stoper, null)
+    );
+};
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
 

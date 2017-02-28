@@ -16,7 +16,7 @@ body {
     min-height: 60px;
     color: #202020;
     font-size: 2em;
-   
+    margin: 0;
 }
 
 .container {
