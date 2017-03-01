@@ -151,13 +151,7 @@ var Stoper = function (_React$Component) {
     }, {
         key: 'reset',
         value: function reset() {
-            this.setState({
-                times: {
-                    minutes: 0,
-                    seconds: 0,
-                    miliseconds: 0
-                }
-            });
+            this.setActualTimeState({});
         }
     }, {
         key: 'middleTime',
@@ -175,17 +169,39 @@ var Stoper = function (_React$Component) {
             });
         }
     }, {
+        key: 'setActualTimeState',
+        value: function setActualTimeState(_ref4) {
+            var _ref4$minutes = _ref4.minutes,
+                minutes = _ref4$minutes === undefined ? 0 : _ref4$minutes,
+                _ref4$seconds = _ref4.seconds,
+                seconds = _ref4$seconds === undefined ? 0 : _ref4$seconds,
+                _ref4$miliseconds = _ref4.miliseconds,
+                miliseconds = _ref4$miliseconds === undefined ? 0 : _ref4$miliseconds;
+
+            this.setState({
+                times: {
+                    minutes: minutes,
+                    seconds: seconds,
+                    miliseconds: miliseconds
+                }
+            });
+        }
+    }, {
         key: 'calculate',
         value: function calculate() {
-            this.times.miliseconds += 1;
-            if (this.times.miliseconds >= 100) {
-                this.times.seconds += 1;
-                this.times.miliseconds = 0;
+            var temporaryTime = this.state.times;
+
+            temporaryTime.miliseconds += 1;
+            if (temporaryTime.miliseconds >= 100) {
+                temporaryTime.seconds += 1;
+                temporaryTime.miliseconds = 0;
             }
-            if (this.times.seconds >= 60) {
-                this.times.minutes += 1;
-                this.times.seconds = 0;
+
+            if (temporaryTime.seconds >= 60) {
+                temporaryTime.minutes += 1;
+                temporaryTime.seconds = 0;
             }
+            this.setActualTimeState(temporaryTime);
         }
     }, {
         key: 'render',

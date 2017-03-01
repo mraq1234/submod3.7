@@ -80,13 +80,7 @@ class Stoper extends React.Component {
     }
     
     reset() {
-        this.setState({
-            times: {
-                minutes: 0,
-                seconds: 0,
-                miliseconds: 0
-            }
-        });
+        this.setActualTimeState({});
     }
 
     middleTime() {
@@ -102,16 +96,31 @@ class Stoper extends React.Component {
         });
     }
 
+    setActualTimeState({minutes = 0, seconds = 0, miliseconds = 0}) {
+        this.setState({
+            times: {
+                minutes: minutes,
+                seconds: seconds,
+                miliseconds: miliseconds
+            }   
+        });
+    }
+
+   
     calculate() {
-        this.state.times.miliseconds += 1;
-        if (this.state.times.miliseconds >= 100) {
-            this.state.times.seconds += 1;
-            this.state.times.miliseconds = 0;
+        let temporaryTime = this.state.times;
+        
+        temporaryTime.miliseconds += 1;
+        if (temporaryTime.miliseconds >= 100) {
+            temporaryTime.seconds += 1;
+            temporaryTime.miliseconds = 0;
         }
-        if (this.state.times.seconds >= 60) {
-            this.state.times.minutes += 1;
-            this.state.times.seconds = 0;
+
+        if (temporaryTime.seconds >= 60) {
+            temporaryTime.minutes += 1;
+            temporaryTime.seconds = 0;
         }
+        this.setActualTimeState(temporaryTime);
     }
 
     render() {
